@@ -15,6 +15,7 @@ import {
   classNames,
 } from '../../lib/formatUtils';
 import { db } from '../../lib/firebaseAdmin';
+import fetcher from '../../utils/fetcher';
 
 export default function InvoicePage({ invoiceData }) {
   const [invoice, setInvoice] = useState(invoiceData);
@@ -94,6 +95,19 @@ export default function InvoicePage({ invoiceData }) {
   useEffect(() => {
     setCurrentInvoice(invoice);
   }, [invoice, setCurrentInvoice]);
+
+  // refresh invoice on screen if data is updated
+  const { data, mutate } = useSWR(`/api/invoice/${invoice.id}`, fetcher, {
+    revalidateOnMount: true,
+  });
+
+  useEffect(() => {
+    if (data) {
+      setInvoice(data.invoice);
+    }
+  }, [data]);
+
+  mutate();
 
   return (
     <>
